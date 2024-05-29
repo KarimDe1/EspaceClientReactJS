@@ -22,7 +22,7 @@ export default function Profile() {
      if (client) {
         setNom(client.name);
         setLastName(client.last_name);
-        setCodec(client.code_Client);
+        setCodec(client.code_Clfient);
         setTel(client.tel);
         setTypec(client.type_Client);
     }

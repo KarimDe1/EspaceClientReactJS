@@ -62,16 +62,16 @@ button[type="submit"] {
     outline: none;
     height: 40px;
     width: 100%;
-    background: #FEE502;
-    color: #373737;
+    background:#f48404;
+    color: #fff;
     font-size: 18px;
     border-radius: 20px;
 }
 
 button[type="submit"]:hover {
     cursor: pointer;
-    color: #373737;
-    background: #F5DD04;
+    color: #fff;
+    background: #d57508;
 }
 
 

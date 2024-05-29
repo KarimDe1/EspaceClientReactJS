@@ -61,8 +61,8 @@ export default function Factures() {
                     {
                         title: 'Numero de facture',
                         render: rowData => (
-                            <div className=" px-2 py-1">
-                                <div className= "flex-column justify-content-center">
+                            <div className="d-flex px-2 py-1">
+                                <div className="d-flex flex-column justify-content-center">
                                     <h6 className="mb-0 text-sm">{ProfileUserInput.numeroFacture}</h6>
                                 </div>
                             </div>
