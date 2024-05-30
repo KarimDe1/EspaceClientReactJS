@@ -3,10 +3,13 @@ import axios from "axios";
 import MaterialTable from 'material-table';
 import tableIcons from '../MaterialTableIcons';
 import { Link } from 'react-router-dom';
+import StripeContainer from './StripePayment';
+
 
 export default function Factures() {
     const [factures, setFactures] = useState([]);
- 
+    const [selectedAmount, setSelectedAmount] = useState(null);
+    const [showPayment, setShowPayment] = useState(false);
 
     useEffect(() => {
         // Fetch factures for the current logged-in user
@@ -16,7 +19,7 @@ export default function Factures() {
                 axios.get(`api/factures/${userId}`)
                     .then(response => {
                         setFactures(response.data.facture); // Corrected access to response.data.facture
-                     })
+                    })
                     .catch(error => {
                         console.error('Error fetching factures:', error);
                     });
@@ -32,18 +35,23 @@ export default function Factures() {
 
     }
 
+    const handlePaymentClick = (amount) => {
+        setSelectedAmount(amount);
+        setShowPayment(true);
+    };
+
     return (
         <div className="align-items-center justify-content-between mb-4">
             <MaterialTable
                 columns={[
                     {
-                        title: <h6 style={{ fontSize: '17px', color:'#f48404' }}>Numero de facture</h6>,
+                        title: <h6 style={{ fontSize: '17px', color: '#f48404' }}>Numero de facture</h6>,
 
                         render: rowData => <p >{rowData.numero_facture}</p>,
                         customFilterAndSearch: (term, rowData) => ((rowData.numero_facture).toLowerCase()).indexOf(term.toLowerCase()) !== -1
                     },
                     {
-                        title: <h6 style={{ fontSize: '17px', color:'#f48404' }}>Montant à payer</h6> ,
+                        title: <h6 style={{ fontSize: '17px', color: '#f48404' }}>Montant à payer</h6>,
                         render: rowData => (
                             <p>
                                 {rowData.montant_a_payer}
@@ -52,15 +60,15 @@ export default function Factures() {
                     },
 
                     {
-                        title: <h6 style={{ fontSize: '17px', color:'#f48404' }}>Reste à payer</h6>,
+                        title: <h6 style={{ fontSize: '17px', color: '#f48404' }}>Reste à payer</h6>,
                         render: rowData => <p >{rowData.reste_a_payer}</p>
                     },
                     {
-                        title:  <h6  style={{ fontSize: '17px', color:'#f48404' }}>Prise en charge</h6>,
+                        title: <h6 style={{ fontSize: '17px', color: '#f48404' }}>Prise en charge</h6>,
                         render: rowData => <p>{rowData.prise_en_charge}</p>
                     },
                     {
-                        title: <h6 style={{ fontSize: '17px', color:'#f48404' }} >Échéance</h6>,
+                        title: <h6 style={{ fontSize: '17px', color: '#f48404' }} >Échéance</h6>,
                         render: rowData => <p>{rowData.echeance}</p>,
 
                     },
@@ -77,19 +85,24 @@ export default function Factures() {
                                         </button>
                                     </Link>
                                 ) : (
-                                    <Link to='#' onClick={(e) => VoirPDF(e, rowData.pdf_facture)}>
-                                        <button className='btn ' style={{ borderRadius: 19, borderColor: '#18a6f0', backgroundColor: '#18a6f0', color: "#fff" }}>
-                                            <i className="fas fa-eye" style={{ marginRight: '8px' }}></i>
-                                            Visualiser
-                                        </button>
-
-                                        <button className='btn mt-2' style={{ borderRadius: 19, borderColor: '#18a6f0', backgroundColor: '#18a6f0', color: "#fff" }}>
-                                            <i className="fas fa-credit-card" style={{ marginRight: '8px' }}></i>
-                                            Paiement par carte
-                                        </button>
-
-                                    </Link>
+                                    <>
+                                        <Link to='#' onClick={(e) => VoirPDF(e, rowData.pdf_facture)}>
+                                            <button className='btn ' style={{ borderRadius: 19, borderColor: '#18a6f0', backgroundColor: '#18a6f0', color: "#fff" }}>
+                                                <i className="fas fa-eye" style={{ marginRight: '8px' }}></i>
+                                                Visualiser
+                                            </button>
+                                        </Link>
+                                        <Link to="#" onClick={() => handlePaymentClick(rowData.reste_a_payer)}>
+                                            <button className='btn mt-2' style={{ borderRadius: 19, borderColor: '#18a6f0', backgroundColor: '#18a6f0', color: "#fff" }}>
+                                                <i className="fas fa-credit-card" style={{ marginRight: '8px' }}></i>
+                                                Paiement par carte
+                                            </button>
+                                        </Link>
+                                    </>
                                 )}
+                                {/* Payment container */}
+                                {showPayment && <StripeContainer amount={selectedAmount} />}
+
                             </div>
                         )
                     }
