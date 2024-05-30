@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Error from "../components/Error";
-import Loading from "../components/Loading";
+ 
 import './Login.css';
 import axios from "axios";
 import swal from 'sweetalert';

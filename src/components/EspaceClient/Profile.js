@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
-import Error from '../Error';
-import Loading from '../Loading';
-import Success from '../Success';
-import axios from "axios";
+ import Loading from '../Loading';
+ import axios from "axios";
 import swal from 'sweetalert';
 
 import { GovDeleg } from './GovDeleg';

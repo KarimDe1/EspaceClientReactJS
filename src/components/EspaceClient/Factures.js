@@ -1,110 +1,101 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
-import { Link } from 'react-router-dom';
 import MaterialTable from 'material-table';
 import tableIcons from '../MaterialTableIcons';
-import swal from 'sweetalert';
+import { Link } from 'react-router-dom';
 
 export default function Factures() {
+    const [factures, setFactures] = useState([]);
+ 
 
-    const [ProfileUserInput, setProfileUser] = useState({
-        id: '',
-        numeroFacture: '',
-        montantAPayer: '',
-        resteAPayer: '',
-        priseEnCharge: '',
-        echeance: ''
+    useEffect(() => {
+        // Fetch factures for the current logged-in user
+        axios.get('api/currentuser')
+            .then(response => {
+                const userId = response.data.currentuser._id;
+                axios.get(`api/factures/${userId}`)
+                    .then(response => {
+                        setFactures(response.data.facture); // Corrected access to response.data.facture
+                     })
+                    .catch(error => {
+                        console.error('Error fetching factures:', error);
+                    });
+            })
+            .catch(error => {
+                console.error('Error fetching current user:', error);
+            });
+    }, []);
 
+    const VoirPDF = (e, pdf) => {
+        e.preventDefault();
+        window.open(`http://127.0.0.1:8000${pdf}`)
 
-    });
-    const mockData = [
-        {
-          id: 1,
-          numeroFacture: '20241723248',
-          montantAPayer: '53,937',
-          resteAPayer: '53,937',
-          priseEnCharge: 'non',
-          echeance: '14/06/2024'
-        },
-        {
-            id: 2,
-            numeroFacture: '20241723248',
-            montantAPayer: '53,937',
-            resteAPayer: '53,937',
-            priseEnCharge: 'non',
-            echeance: '14/06/2024'
-          },
-        // Add more mock data items as needed
-      ];
-      const showFormUpdateProfil = (e, clientId) => {
-
-            e.preventDefault();
-        
-        axios.get(`/api/factures/${clientId}`).then(res => {
-            if (res.data.status === 200) {
-                setProfileUser(res.data.user);
-            } else if (res.data.status === 404) {//si l'utilisateur non trouvé
-                //afficher un message d'erreur
-                swal("", res.data.message, "error");
-            }
-
-        });
     }
 
-
-
-  
     return (
-        <div style={{ overflowX: 'auto', width: '100vw' }}>
+        <div className="align-items-center justify-content-between mb-4">
             <MaterialTable
                 columns={[
                     {
-                        title: 'Numero de facture',
-                        render: rowData => (
-                            <div className="d-flex px-2 py-1">
-                                <div className="d-flex flex-column justify-content-center">
-                                    <h6 className="mb-0 text-sm">{ProfileUserInput.numeroFacture}</h6>
-                                </div>
-                            </div>
-                        ),
-                    // customFilterAndSearch: (term, rowData) => ((rowData.Firstname).toLowerCase()).indexOf(term.toLowerCase()) !== -1
+                        title: <h6 style={{ fontSize: '17px', color:'#f48404' }}>Numero de facture</h6>,
+
+                        render: rowData => <p >{rowData.numero_facture}</p>,
+                        customFilterAndSearch: (term, rowData) => ((rowData.numero_facture).toLowerCase()).indexOf(term.toLowerCase()) !== -1
                     },
                     {
-                        title: 'Montant à payer',
+                        title: <h6 style={{ fontSize: '17px', color:'#f48404' }}>Montant à payer</h6> ,
                         render: rowData => (
-                            <p className="text-xs font-weight-bold mb-0">
-                              {ProfileUserInput.montantAPayer}
+                            <p>
+                                {rowData.montant_a_payer}
                             </p>
                         )
                     },
-                    
+
                     {
-                        title: 'Reste à payer',
-                        render: rowData => <p className="text-xs font-weight-bold mb-0">53,937</p>
+                        title: <h6 style={{ fontSize: '17px', color:'#f48404' }}>Reste à payer</h6>,
+                        render: rowData => <p >{rowData.reste_a_payer}</p>
                     },
                     {
-                        title: 'Prise en charge',
-                        render: rowData => <p className="text-xs font-weight-bold mb-0">non</p>
+                        title:  <h6  style={{ fontSize: '17px', color:'#f48404' }}>Prise en charge</h6>,
+                        render: rowData => <p>{rowData.prise_en_charge}</p>
                     },
                     {
-                        title: 'Échéance',
-                        render: rowData => <p className="text-xs font-weight-bold mb-0">14/06/2024</p>,
-                      //  customFilterAndSearch: (term, rowData) => (rowData.Email.toLowerCase()).indexOf(term.toLowerCase()) !== -1
+                        title: <h6 style={{ fontSize: '17px', color:'#f48404' }} >Échéance</h6>,
+                        render: rowData => <p>{rowData.echeance}</p>,
+
                     },
                     {
-                        title: 'Actions',
+                        title: '',
                         render: rowData => (
+
                             <div>
-                                {/* <Link to={`/admin/user/edit/${rowData._id}`}>
-                                    <i className="fas fa-edit" style={{ color: '#FEE502', marginRight: '8px' }}></i>
-                                </Link>
-                                <i className="fas fa-trash" style={{ color: 'red', cursor: 'pointer' }} onClick={() => setDeleteUserId(rowData._id)}></i> */}
+                                {parseFloat(rowData.reste_a_payer) === 0 ? (
+                                    <Link to='#' onClick={(e) => VoirPDF(e, rowData.pdf_facture)}>
+                                        <button className='btn' style={{ borderRadius: 19, borderColor: '#18a6f0', backgroundColor: '#18a6f0', color: "#fff" }}>
+                                            <i className="fas fa-eye" style={{ marginRight: '8px' }}></i>
+                                            Visualiser
+                                        </button>
+                                    </Link>
+                                ) : (
+                                    <Link to='#' onClick={(e) => VoirPDF(e, rowData.pdf_facture)}>
+                                        <button className='btn ' style={{ borderRadius: 19, borderColor: '#18a6f0', backgroundColor: '#18a6f0', color: "#fff" }}>
+                                            <i className="fas fa-eye" style={{ marginRight: '8px' }}></i>
+                                            Visualiser
+                                        </button>
+
+                                        <button className='btn mt-2' style={{ borderRadius: 19, borderColor: '#18a6f0', backgroundColor: '#18a6f0', color: "#fff" }}>
+                                            <i className="fas fa-credit-card" style={{ marginRight: '8px' }}></i>
+                                            Paiement par carte
+                                        </button>
+
+                                    </Link>
+                                )}
                             </div>
                         )
                     }
                 ]}
-                data={mockData}
-                title={<h6>Mes factures</h6>}
+                data={factures}
+                title={<h4 >Mes factures</h4>}
                 icons={tableIcons}
                 options={{
                     padding: 'dense',
@@ -112,8 +103,6 @@ export default function Factures() {
                     pageSizeOptions: [2, 3, 4],
                 }}
             />
-
-       
         </div>
     );
 }
