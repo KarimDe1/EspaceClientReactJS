@@ -1,4 +1,4 @@
-import React, { useState , useEffect} from 'react';
+import React, { useEffect, useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import axios from 'axios';
@@ -8,57 +8,51 @@ const stripePromise = loadStripe('pk_test_51PM93EP08thL8YjU0rYFxQHB7E0QvfefWS3Yf
 const StripePayment = ({ amount }) => {
     const stripe = useStripe();
     const elements = useElements();
-    const [succeeded, setSucceeded] = useState(false);
     const [error, setError] = useState(null);
-    const [processing, setProcessing] = useState('');
-    const [disabled, setDisabled] = useState(true);
+    const [processing, setProcessing] = useState(false);
     const [clientSecret, setClientSecret] = useState('');
 
     useEffect(() => {
-        axios.post('/api/create-payment-intent', { amount })
+        axios.post('/api/create-payment-intent', { amount: amount * 100 }) // Convert amount to cents
             .then(response => {
                 setClientSecret(response.data.clientSecret);
+            })
+            .catch(error => {
+                console.error('Error creating payment intent:', error); // Log error details
             });
     }, [amount]);
 
-    const handleChange = async (event) => {
-        setDisabled(event.empty);
-        setError(event.error ? event.error.message : '');
-    };
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        if (!clientSecret) {
+            setError('Client secret not set');
+            return;
+        }
 
-    const handleSubmit = async (ev) => {
-        ev.preventDefault();
         setProcessing(true);
 
         const payload = await stripe.confirmCardPayment(clientSecret, {
             payment_method: {
-                card: elements.getElement(CardElement)
-            }
+                card: elements.getElement(CardElement),
+            },
         });
 
         if (payload.error) {
-            setError(`Payment failed ${payload.error.message}`);
+            setError(`Payment failed: ${payload.error.message}`);
             setProcessing(false);
         } else {
             setError(null);
             setProcessing(false);
-            setSucceeded(true);
         }
     };
 
     return (
         <form id="payment-form" onSubmit={handleSubmit}>
-            <CardElement id="card-element" onChange={handleChange} />
-            <button disabled={processing || disabled || succeeded} id="submit">
-                <span id="button-text">
-                    {processing ? <div className="spinner" id="spinner"></div> : "Pay"}
-                </span>
+            <CardElement id="card-element" />
+            <button type="submit" disabled={processing}>
+                {processing ? 'Processing...' : 'Pay'}
             </button>
-            {error && <div className="card-error" role="alert">{error}</div>}
-            <p className={succeeded ? "result-message" : "result-message hidden"}>
-                Payment succeeded, see the result in your
-                <a href={`https://dashboard.stripe.com/test/payments`}>Stripe dashboard.</a> Refresh the page to pay again.
-            </p>
+            {error && <div>{error}</div>}
         </form>
     );
 };
