@@ -13,6 +13,10 @@ export default function ProduitDetails() {
             <MaterialTable
                 columns={[
                     {
+                        title: 'Ref produit',
+                        field: 'ref_produit_contrat'
+                    },
+                    {
                         title: 'Nom Commercial',
                         field: 'nom_commercial'
                     },
