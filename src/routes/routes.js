@@ -1,3 +1,7 @@
+import React from 'react';
+import { Route } from 'react-router-dom'; // Import Route from react-router-dom
+import ProduitDetailsPage from '../components/EspaceClient/ProduitDetailsPage'; 
+
 import Dashboard from "../components/EspaceClient/Dashboard";
 import Factures from "../components/EspaceClient/Factures";
 import Profile from "../components/EspaceClient/Profile";
@@ -57,6 +61,12 @@ const routes =  [
     //Suggestion routes
     {path: '/espaceclient/nouvelle_demande_suggestion', exact:true, name:'NouvelleSuggestion', component:NouvelleSuggestion},
     {path: '/espaceclient/historique_demandes_suggestion', exact:true, name:'HistoriqueDemandesSuggestion', component:HistoriqueDemandesSuggestion},
+
+
+    {path: '/espaceclient/produit-details', exact:true, name:'ProduitDetailsPage', component:ProduitDetailsPage},
+
+
+
 
     //Satisfaction route
     {path: '/espaceclient/satisfaction', exact:true, name:'Satisfaction', component:Satisfaction},
