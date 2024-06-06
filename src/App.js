@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 import LoginScreen from './screens/LoginScreen';
 import MasterLayout from './layouts/MasterLayout';
 import axios from 'axios';
@@ -15,29 +17,26 @@ axios.interceptors.request.use(function (config) {
   return config;
 });
 
+const stripePromise = loadStripe('your_stripe_publishable_key');
+
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Check if the user is authenticated
     const token = localStorage.getItem('auth_token');
-    setIsAuthenticated(!!token); // Convert token presence to boolean
+    setIsAuthenticated(!!token);
   }, []);
 
   return (
     <div className="App">
-      
       <Router>
         <Switch>
-          {/* Public route accessible to all users */}
           <Route path="/" exact>
             {isAuthenticated ? <Redirect to="/espaceclient/dashboard" /> : <LoginScreen />}
           </Route>
-
-          {/* Protected route accessible only if user is authenticated */}
-          <PrivateRoute path="/espaceclient" component={MasterLayout} isAuthenticated={isAuthenticated} />
-
-          {/* Redirect all other undefined paths to the login screen */}
+          <Elements stripe={stripePromise}>
+            <PrivateRoute path="/espaceclient" component={MasterLayout} isAuthenticated={isAuthenticated} />
+          </Elements>
           <Route render={() => <Redirect to="/" />} />
         </Switch>
       </Router>
@@ -45,9 +44,6 @@ const App = () => {
   );
 };
 
-
-
-// PrivateRoute component for protecting routes based on authentication
 const PrivateRoute = ({ component: Component, isAuthenticated, ...rest }) => {
   return (
     <Route

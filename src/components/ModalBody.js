@@ -1,14 +1,3 @@
-import React, { useState } from 'react';
-import MaterialTable from 'material-table';
-import axios from 'axios';
-import { loadStripe } from '@stripe/stripe-js';
-import tableIcons from './MaterialTableIcons';
-import { Link } from 'react-router-dom';
-import StripePayment from '../components/EspaceClient/StripePayment';
-import { Modal, Button } from 'react-bootstrap';
-
-const stripePromise = loadStripe('pk_test_51PM93EP08thL8YjU0rYFxQHB7E0QvfefWS3YftiVXOb76yaefza5qau5RZ4W9dL3pAqMMAM68NJcyzIyg895aV8u00kSxVGtAd');
-
 const ModalBody = ({ data, onClose }) => {
   const [selectedAmount, setSelectedAmount] = useState(null);
   const [showPayment, setShowPayment] = useState(false);
@@ -20,7 +9,6 @@ const ModalBody = ({ data, onClose }) => {
   };
 
   const handleCheckout = async (prix) => {
-
     if (!prix) {
       console.error("Prix is not defined or empty");
       return;
@@ -58,32 +46,29 @@ const ModalBody = ({ data, onClose }) => {
               <Link to="#" onClick={() => handlePaymentClick(rowData.prix)}>
                 <button className='btn mt-2' style={{ borderRadius: 19, borderColor: '#18a6f0', backgroundColor: '#18a6f0', color: "#fff" }}>
                     <i className="fas fa-credit-card" style={{ marginRight: '8px' }}></i>
-                    Paiement par carte
+                    Acheter
                 </button>
-            </Link>
+              </Link>
             )
           },
         ]}
         data={data}
-        icons={tableIcons}
         title="Contract Options"
       />
 
-<Modal show={showPayment} onHide={handleClose}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Paiement par carte</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {showPayment && <StripePayment amount={selectedAmount} />}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>
-                        Fermer
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+      <Modal show={showPayment} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Paiement par carte</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {showPayment && <StripeOptionPayment amount={selectedAmount} />}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Fermer
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }
-
-export default ModalBody;
