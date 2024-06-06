@@ -3,13 +3,18 @@ import axios from "axios";
 import MaterialTable from 'material-table';
 import tableIcons from '../MaterialTableIcons';
 import { Link } from 'react-router-dom';
+import { Elements } from '@stripe/react-stripe-js'; // Import Elements
+import { loadStripe } from '@stripe/stripe-js';
 import StripePayment from './StripePayment';
 import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+const stripePromise = loadStripe('pk_test_51PM93EP08thL8YjU0rYFxQHB7E0QvfefWS3YftiVXOb76yaefza5qau5RZ4W9dL3pAqMMAM68NJcyzIyg895aV8u00kSxVGtAd');
+
 export default function Factures() {
     const [factures, setFactures] = useState([]);
     const [selectedAmount, setSelectedAmount] = useState(null);
+    const [selectedFactureId, setSelectedFactureId] = useState(null);
     const [showPayment, setShowPayment] = useState(false);
 
     useEffect(() => {
@@ -34,9 +39,37 @@ export default function Factures() {
         window.open(`http://127.0.0.1:8000${pdf}`)
     }
 
-    const handlePaymentClick = (amount) => {
+    const handlePaymentSuccess = (factureId) => {
+        axios.put(`/api/factures/${factureId}`)
+            .then(response => {
+                setFactures(prevFactures => {
+                    return prevFactures.map(facture => {
+                        if (facture._id === factureId) {
+                            return { ...facture, reste_a_payer: '0' };
+                        }
+                        return facture;
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('Error updating reste a payer:', error);
+                // Handle error
+            });
+    };
+    
+
+    const handlePaymentClick = (amount, factureId) => {
         setSelectedAmount(amount);
+        setSelectedFactureId(factureId);
         setShowPayment(true);
+        setFactures(prevFactures => {
+            return prevFactures.map(facture => {
+                if (facture._id === factureId) {
+                    return { ...facture, reste_a_payer: '0' };
+                }
+                return facture;
+            });
+        });
     };
 
     const handleClose = () => setShowPayment(false);
@@ -85,7 +118,7 @@ export default function Factures() {
                                                 Visualiser
                                             </button>
                                         </Link>
-                                        <Link to="#" onClick={() => handlePaymentClick(rowData.reste_a_payer)}>
+                                        <Link to="#" onClick={() => handlePaymentClick(rowData.reste_a_payer, rowData._id)}>
                                             <button className='btn mt-2' style={{ borderRadius: 19, borderColor: '#18a6f0', backgroundColor: '#18a6f0', color: "#fff" }}>
                                                 <i className="fas fa-credit-card" style={{ marginRight: '8px' }}></i>
                                                 Paiement par carte
@@ -112,7 +145,11 @@ export default function Factures() {
                     <Modal.Title>Paiement par carte</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {showPayment && <StripePayment amount={selectedAmount} />}
+                    {showPayment && (
+                        <Elements stripe={stripePromise}>
+                            <StripePayment amount={selectedAmount} factureId={selectedFactureId} handlePaymentClick={handlePaymentClick} />
+                        </Elements>
+                    )}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleClose}>
