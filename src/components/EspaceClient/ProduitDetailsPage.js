@@ -3,10 +3,9 @@ import { useLocation } from 'react-router-dom';
 import MaterialTable from 'material-table';
 import tableIcons from '../MaterialTableIcons';
 
-
 export default function ProduitDetails() {
     const location = useLocation();
-    const produits = location.state.produit;
+    const produits = location.state?.produit || [];
 
     return (
         <div>
@@ -26,23 +25,19 @@ export default function ProduitDetails() {
                     },
                     {
                         title: 'Etat',
-                        field: 'etat'
+                        
+                        render: rowData => (
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'green', marginRight: 8 }}></div>
+                                <span style={{ color: 'green', textShadow: '0px 0px 10px green' }}>{rowData.etat}</span>
+                            </div>
+                        )
                     },
                     {
                         title: 'Etat Service',
                         field: 'etat_service'
                     },
-                    {
-                        title: 'Action',
-                        render: rowData => (
-                            <div>
-                                <button className='btn' style={{ borderRadius: 19, borderColor: '#18a6f0', backgroundColor: '#18a6f0', color: "#fff" }} onClick="">
-                                    <i className="fas fa-credit-card" style={{ marginRight: '8px' }}></i>
-                                    Acheter
-                                </button>
-                            </div>
-                        )
-                    }
+                    
                 ]}
                 data={produits}
                 title={<h4>Liste des Produits</h4>}

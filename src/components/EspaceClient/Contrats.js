@@ -10,8 +10,11 @@ import ModalBody from '../ModalBody'; // Import the ModalBody component
 
 export default function Contract() {
     const [contracts, setContracts] = useState([]);
+    const [option, setOption] = useState([]);
     const [produit, setProduit] = useState([]);
     const [showModal, setShowModal] = useState(false);
+    const [selectedAmount, setSelectedAmount] = useState(null);
+    const [showPayment, setShowPayment] = useState(false);
 
     useEffect(() => {
         axios.get('api/currentuser')
@@ -24,15 +27,23 @@ export default function Contract() {
                     .catch(error => {
                         console.error('Error fetching produit:', error);
                     });
-                    axios.get(`api/produit`)
+                axios.get(`api/produit`)
                     .then(response => {
                         setProduit(response.data.produit);
                         console.log(produit);
-
                     })
                     .catch(error => {
-                        console.error('Error fetching factures:', error);
+                        console.error('Error fetching produit:', error);
                     });
+
+                axios.get(`api/option`)
+                .then(response => {
+                    setOption(response.data.option);
+                    console.log(option);
+                })
+                .catch(error => {
+                    console.error('Error fetching Options contrats:', error);
+                });
            
                 axios.get(`api/contract/${userId}`)
                     .then(response => {
@@ -51,6 +62,19 @@ export default function Contract() {
             });
     }, []);
 
+    const handlePaymentClick = (amount) => {
+        setSelectedAmount(amount);
+        setShowPayment(true);
+    };
+
+    useEffect(() => {
+        console.log(produit);
+    }, [produit]);
+
+    useEffect(() => {
+        console.log(option);
+    }, [option]);
+
     const handleOptionsClick = () => {
         setShowModal(true);
     };
@@ -67,7 +91,7 @@ export default function Contract() {
                             <div>
                                 <span>{rowData.reference_contrat}</span>
                                 <div style={{ marginTop: '8px' }}>
-                                    <Link to={{ pathname: '/espaceclient/produit-details', state: { produit: produit } }}>
+                                    <Link to={{ pathname: '/espaceclient/produit-details', state: { produit: produit.filter(p => p.reference_contrat === rowData._id) } }}>
                                         <button className='btn' style={{ borderRadius: 19, borderColor: '#18a6f0', backgroundColor: '#18a6f0', color: "#fff" }}>
                                             Visualiser
                                         </button>
@@ -86,7 +110,12 @@ export default function Contract() {
                     },
                     {
                         title: <h6 style={{ fontSize: '17px', color: '#f48404' }}>Etat</h6>,
-                        field: 'etat'
+                        render: rowData => (
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'green', marginRight: 8 }}></div>
+                                <span style={{ color: 'green', textShadow: '0px 0px 10px green' }}>{rowData.etat}</span>
+                            </div>
+                        )
                     },
                     {
                         title: <h6 style={{ fontSize: '17px', color: '#f48404' }}>Options à activer</h6>,
@@ -110,20 +139,23 @@ export default function Contract() {
                 }}
             />
 
-            <Modal show={showModal} onHide={() => setShowModal(false)} dialogClassName="custom-modal-dialog">
-                <Modal.Header closeButton>
-                    <Modal.Title>Contract Options</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <ModalBody
-                        data={[{ name: 'KID SECURE', description: 'Description 1' }, { name: 'Pack Antivirus', description: 'Description 2' }]}
-                        onClose={() => setShowModal(false)}
-                    />
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
-                </Modal.Footer>
-            </Modal>
+<Modal show={showModal} onHide={() => setShowModal(false)} dialogClassName="custom-modal-dialog">
+    <Modal.Header closeButton>
+        <Modal.Title>Contract Options</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+        {showModal && (
+            <ModalBody
+                data={option.map(option => ({ name: option.designation ,prix: option.prix}))}
+                onClose={() => setShowModal(false)}
+            />
+        )}
+    </Modal.Body>
+    <Modal.Footer>
+        <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
+    </Modal.Footer>
+</Modal>
+
         </div>
     );
 }
