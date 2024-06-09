@@ -63,7 +63,7 @@ const ModalBody = ({ data, contratId, onClose }) => {
         <div>
             <MaterialTable
                 columns={[
-                    { title: 'Option Name', field: 'designation' },
+                    { title: 'Nom', field: 'designation' },
                     { title: 'Prix', field: 'prix' },
                     {
                         title: 'Action',

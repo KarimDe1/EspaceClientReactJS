@@ -138,12 +138,7 @@ const Sidebar = () => {
                 </Link>
             </li>
 
-            <li className="nav-item">
-                <Link className="nav-link" to="/espaceclient/suividemandes">
-                    <i className="fa fa-history" style={{ marginRight: '10px' }}></i>
-                    <span> Suivre mes demandes</span>
-                </Link>
-            </li>
+            
         </ul>
     );
 };

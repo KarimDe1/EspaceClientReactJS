@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-d
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import LoginScreen from './screens/LoginScreen';
+import Forgotpassword from './screens/Forgotpassword';
+import Resetforgottenpassword from './screens/Resetforgottenpassword';
 import MasterLayout from './layouts/MasterLayout';
 import axios from 'axios';
 
@@ -34,6 +36,12 @@ const App = () => {
           <Route path="/" exact>
             {isAuthenticated ? <Redirect to="/espaceclient/dashboard" /> : <LoginScreen />}
           </Route>
+          <Route path='/forgotpassword'>
+            {isAuthenticated ? <Redirect to="/espaceclient/dashboard" /> : <Forgotpassword />}
+          </Route>
+          <Route path='/resetforgottenpassword/:id' >
+              {isAuthenticated ? <Redirect to="/espaceclient/dashboard" /> : <Resetforgottenpassword />}
+            </Route>
           <Elements stripe={stripePromise}>
             <PrivateRoute path="/espaceclient" component={MasterLayout} isAuthenticated={isAuthenticated} />
           </Elements>

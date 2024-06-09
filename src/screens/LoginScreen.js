@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
- 
+
 import './Login.css';
 import axios from "axios";
 import swal from 'sweetalert';
 
 import { useHistory, Link } from "react-router-dom";
- 
+
 const LoginScreen = () => {
     const history = useHistory();
 
     const [loginInput, setLogin] = useState({
         tel: '',
-        code_Client:'',
+        code_Client: '',
         error_list: [],
 
     });
@@ -21,7 +21,7 @@ const LoginScreen = () => {
         setLogin({ ...loginInput, [e.target.name]: e.target.value });
     }
 
- 
+
     const loginSubmit = (e) => {
         e.preventDefault();
 
@@ -36,15 +36,15 @@ const LoginScreen = () => {
 
                     localStorage.setItem('auth_token', res.data.token);
                     localStorage.setItem('auth_client', JSON.stringify(res.data.client));
- 
-                
-                        history.push('/espaceclient/dashboard');
-                        window.location.reload();
 
-               
-                 
 
-                }   else if (res.data.status === 401) {
+                    history.push('/espaceclient/dashboard');
+                    window.location.reload();
+
+
+
+
+                } else if (res.data.status === 401) {
                     swal("Oops", res.data.message, "error");
 
                 }
@@ -59,21 +59,29 @@ const LoginScreen = () => {
 
     }
 
-  
+
 
     return (
         <div className='login-screen-box '>
             <img src="https://icons.veryicon.com/png/o/miscellaneous/two-color-icon-library/user-286.png" className="avatar" alt="User Avatar" />
             <h1>Connectez-vous</h1>
-          
-            <div>
-                <input placeholder='Tel' required className="form-control"onChange={handleInputLogin} value={loginInput.tel} name="tel" />
-                <span className="text-danger">{loginInput.error_list.tel}</span>
 
-                <input placeholder='Code client' required className="form-control"onChange={handleInputLogin} value={loginInput.code_Client} name="code_Client" />
+            <div>
+
+                <input placeholder='Code client' required className="form-control" onChange={handleInputLogin} value={loginInput.code_Client} name="code_Client" />
                 <span className="text-danger">{loginInput.error_list.code_Client}</span>
 
+                <input placeholder='Mot de passe' required className="form-control" onChange={handleInputLogin} value={loginInput.tel} name="tel" />
+                <span className="text-danger">{loginInput.error_list.tel}</span>
+
                 <button onClick={loginSubmit} type="submit">Se connecter </button>
+
+                <div className="card-footer text-center pt-0 px-lg-2 px-1 mt-3">
+                    <p className="mb-4 text-sm mx-auto">
+                        <Link to="/forgotpassword" className="text-info text-gradient font-weight-bold">Mot de passe oublié ?</Link>
+                    </p>
+                </div>
+
 
             </div>
         </div>

@@ -74,6 +74,7 @@ const routes =  [
     //Suivi Demandes
     {path: '/espaceclient/suividemandes', exact:true, name:'SuiviDemandes', component:SuiviDemandes},
 
+    
 ]
 
 export default routes;
