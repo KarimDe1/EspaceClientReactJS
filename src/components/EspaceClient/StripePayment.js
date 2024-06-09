@@ -29,7 +29,7 @@ const StripePayment = ({ amount, factureId, handlePaymentClick }) => {
             setError('Client secret not set');
             return;
         }
-
+        console.log('Client secret:', clientSecret); 
         setProcessing(true);
 
         const payload = await stripe.confirmCardPayment(clientSecret, {

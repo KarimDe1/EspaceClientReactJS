@@ -13,8 +13,6 @@ export default function Contract() {
     const [option, setOption] = useState([]);
     const [produit, setProduit] = useState([]);
     const [showModal, setShowModal] = useState(false);
-    const [selectedAmount, setSelectedAmount] = useState(null);
-    const [showPayment, setShowPayment] = useState(false);
     const [selectedContractId, setSelectedContractId] = useState(null); // State variable to store the selected contract ID
 
     useEffect(() => {
@@ -23,7 +21,7 @@ export default function Contract() {
                 const userId = response.data.currentuser._id;
                 axios.get(`api/produit/${userId}`)
                     .then(response => {
-                        
+                        // Set produit here if needed
                     })
                     .catch(error => {
                         console.error('Error fetching produit:', error);
@@ -31,20 +29,18 @@ export default function Contract() {
                 axios.get(`api/produit`)
                     .then(response => {
                         setProduit(response.data.produit);
-                        console.log(produit);
                     })
                     .catch(error => {
                         console.error('Error fetching produit:', error);
                     });
 
                 axios.get(`api/option`)
-                .then(response => {
-                    setOption(response.data.option);
-                    console.log(option);
-                })
-                .catch(error => {
-                    console.error('Error fetching Options contrats:', error);
-                });
+                    .then(response => {
+                        setOption(response.data.option);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching Options contrats:', error);
+                    });
            
                 axios.get(`api/contract/${userId}`)
                     .then(response => {
@@ -62,14 +58,6 @@ export default function Contract() {
                 console.error('Error fetching current user:', error);
             });
     }, []);
-
-    useEffect(() => {
-        console.log(produit);
-    }, [produit]);
-
-    useEffect(() => {
-        console.log(option);
-    }, [option]);
 
     const handleOptionsClick = (contractId) => {
         setShowModal(true);
@@ -142,22 +130,14 @@ export default function Contract() {
 
             <Modal show={showModal} onHide={() => setShowModal(false)} dialogClassName="custom-modal-dialog">
                 <Modal.Header closeButton>
-                    <Modal.Title>Contract Options</Modal.Title>
+                    <Modal.Title>Options à activer</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {showModal && (
-                        <ModalBody
-                            data={option.map(option => ({ name: option.designation ,prix: option.prix}))}
-                            contratId={selectedContractId} // Pass the contract ID to the ModalBody component
-                            onClose={() => setShowModal(false)}
-                        />
+                    {selectedContractId && (
+                        <ModalBody data={option} contratId={selectedContractId} onClose={() => setShowModal(false)} /> // Pass selectedContractId to ModalBody
                     )}
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
-                </Modal.Footer>
             </Modal>
-
         </div>
     );
 }

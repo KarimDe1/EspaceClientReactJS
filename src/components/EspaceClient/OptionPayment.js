@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const stripePromise = loadStripe('pk_test_51PM93EP08thL8YjU0rYFxQHB7E0QvfefWS3YftiVXOb76yaefza5qau5RZ4W9dL3pAqMMAM68NJcyzIyg895aV8u00kSxVGtAd');
 
-const OptionPayment = ({ amount, contratId, handlePaymentClick }) => {
+const OptionPayment = ({ amount, contratId, handlePaymentClick,handlePaymentSuccess  }) => {
     const stripe = useStripe();
     const elements = useElements();
     const [error, setError] = useState(null);
@@ -45,6 +45,8 @@ const OptionPayment = ({ amount, contratId, handlePaymentClick }) => {
             setError(null);
             setProcessing(false);
             setSuccess('Payment succeeded!');
+            handlePaymentSuccess();
+
             
 
         }
