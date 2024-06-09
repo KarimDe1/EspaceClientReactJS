@@ -1,74 +1,68 @@
-const ModalBody = ({ data, onClose }) => {
-  const [selectedAmount, setSelectedAmount] = useState(null);
-  const [showPayment, setShowPayment] = useState(false);
-  const handleClose = () => setShowPayment(false);
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import MaterialTable from 'material-table';
+import OptionPayment from '../components/EspaceClient/OptionPayment';
+import { loadStripe } from '@stripe/stripe-js';
+import { Modal, Button } from 'react-bootstrap';
+import tableIcons from './MaterialTableIcons';
+import { Elements } from '@stripe/react-stripe-js'; // Import Elements
 
-  const handlePaymentClick = (amount) => {
-    setSelectedAmount(amount);
-    setShowPayment(true);
-  };
+const ModalBody = ({ data, contratId, onClose }) => {
+    const [selectedAmount, setSelectedAmount] = useState(null);
+    const [showPayment, setShowPayment] = useState(false);
 
-  const handleCheckout = async (prix) => {
-    if (!prix) {
-      console.error("Prix is not defined or empty");
-      return;
-    }
+    const stripePromise = loadStripe('pk_test_51PM93EP08thL8YjU0rYFxQHB7E0QvfefWS3YftiVXOb76yaefza5qau5RZ4W9dL3pAqMMAM68NJcyzIyg895aV8u00kSxVGtAd');
 
-    try {
-      const response = await axios.post('/api/create-payment-intent', { amount: prix * 100 });
-      const { clientSecret } = response.data;
+    const handlePaymentClick = (amount) => {
+        setSelectedAmount(amount);
+        setShowPayment(true);
+    };
 
-      const stripe = await stripePromise;
+    const handleClosePayment = () => {
+        setShowPayment(false);
+    };
 
-      const { error } = await stripe.redirectToCheckout({
-        clientReferenceId: clientSecret,
-        successUrl: window.location.origin + '/checkout/success',
-        cancelUrl: window.location.origin + '/checkout/cancel',
-      });
+    return (
+        <div>
+            <MaterialTable
+                columns={[
+                    { title: 'Option Name', field: 'name' },
+                    { title: 'Prix', field: 'prix' },
+                    {
+                        title: 'Description',
+                        render: rowData => (
+                            <div>
+                                <button className='btn' style={{ borderRadius: 19, borderColor: '#18a6f0', backgroundColor: '#18a6f0', color: "#fff" }}
+                                    onClick={() => handlePaymentClick(rowData.prix)}>
+                                    <i className="fas fa-credit-card" style={{ marginRight: '8px' }}></i>
+                                    Acheter
+                                </button>
+                            </div>
+                        )
+                    },
+                ]}
+                data={data}
+                icons={tableIcons}
+                title="Contract Options"
+            />
 
-      if (error) {
-        console.error('Error redirecting to checkout:', error);
-      }
-    } catch (error) {
-      console.error('Error creating payment intent:', error);
-    }
-  };
+            <Modal show={showPayment} onHide={handleClosePayment}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Paiement par carte</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {showPayment && (
+                        <Elements stripe={stripePromise}>
+                            <OptionPayment amount={selectedAmount} contratId={contratId} />
+                        </Elements>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClosePayment}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+        </div>
+    );
+};
 
-  return (
-    <div>
-      <MaterialTable
-        columns={[
-          { title: 'Option Name', field: 'name' },
-          { title: 'prix', field: 'prix' }, // Assuming each option has a prix field
-          { 
-            title: 'Action', 
-            render: (rowData) => (
-              <Link to="#" onClick={() => handlePaymentClick(rowData.prix)}>
-                <button className='btn mt-2' style={{ borderRadius: 19, borderColor: '#18a6f0', backgroundColor: '#18a6f0', color: "#fff" }}>
-                    <i className="fas fa-credit-card" style={{ marginRight: '8px' }}></i>
-                    Acheter
-                </button>
-              </Link>
-            )
-          },
-        ]}
-        data={data}
-        title="Contract Options"
-      />
-
-      <Modal show={showPayment} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Paiement par carte</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {showPayment && <StripeOptionPayment amount={selectedAmount} />}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Fermer
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </div>
-  );
-}
+export default ModalBody;

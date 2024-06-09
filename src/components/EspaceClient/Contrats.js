@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from "axios";
+import axios from 'axios';
 import MaterialTable from 'material-table';
 import tableIcons from '../MaterialTableIcons';
 import { Modal, Button } from 'react-bootstrap';
@@ -15,6 +15,7 @@ export default function Contract() {
     const [showModal, setShowModal] = useState(false);
     const [selectedAmount, setSelectedAmount] = useState(null);
     const [showPayment, setShowPayment] = useState(false);
+    const [selectedContractId, setSelectedContractId] = useState(null); // State variable to store the selected contract ID
 
     useEffect(() => {
         axios.get('api/currentuser')
@@ -62,11 +63,6 @@ export default function Contract() {
             });
     }, []);
 
-    const handlePaymentClick = (amount) => {
-        setSelectedAmount(amount);
-        setShowPayment(true);
-    };
-
     useEffect(() => {
         console.log(produit);
     }, [produit]);
@@ -75,8 +71,9 @@ export default function Contract() {
         console.log(option);
     }, [option]);
 
-    const handleOptionsClick = () => {
+    const handleOptionsClick = (contractId) => {
         setShowModal(true);
+        setSelectedContractId(contractId); // Set the selected contract ID
     };
 
     return (
@@ -119,9 +116,13 @@ export default function Contract() {
                     },
                     {
                         title: <h6 style={{ fontSize: '17px', color: '#f48404' }}>Options à activer</h6>,
-                        render: () => (
+                        render: rowData => (
                             <div>
-                                <button className='btn' style={{ borderRadius: 19, borderColor: '#18a6f0', backgroundColor: '#18a6f0', color: "#fff" }} onClick={handleOptionsClick}>
+                                <button
+                                    className='btn'
+                                    style={{ borderRadius: 19, borderColor: '#18a6f0', backgroundColor: '#18a6f0', color: "#fff" }}
+                                    onClick={() => handleOptionsClick(rowData._id)} // Pass the contract ID here
+                                >
                                     <i className="fas fa-eye" style={{ marginRight: '8px' }}></i>
                                     Options
                                 </button>
@@ -139,22 +140,23 @@ export default function Contract() {
                 }}
             />
 
-<Modal show={showModal} onHide={() => setShowModal(false)} dialogClassName="custom-modal-dialog">
-    <Modal.Header closeButton>
-        <Modal.Title>Contract Options</Modal.Title>
-    </Modal.Header>
-    <Modal.Body>
-        {showModal && (
-            <ModalBody
-                data={option.map(option => ({ name: option.designation ,prix: option.prix}))}
-                onClose={() => setShowModal(false)}
-            />
-        )}
-    </Modal.Body>
-    <Modal.Footer>
-        <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
-    </Modal.Footer>
-</Modal>
+            <Modal show={showModal} onHide={() => setShowModal(false)} dialogClassName="custom-modal-dialog">
+                <Modal.Header closeButton>
+                    <Modal.Title>Contract Options</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {showModal && (
+                        <ModalBody
+                            data={option.map(option => ({ name: option.designation ,prix: option.prix}))}
+                            contratId={selectedContractId} // Pass the contract ID to the ModalBody component
+                            onClose={() => setShowModal(false)}
+                        />
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
+                </Modal.Footer>
+            </Modal>
 
         </div>
     );

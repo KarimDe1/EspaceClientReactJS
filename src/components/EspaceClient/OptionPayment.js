@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const stripePromise = loadStripe('pk_test_51PM93EP08thL8YjU0rYFxQHB7E0QvfefWS3YftiVXOb76yaefza5qau5RZ4W9dL3pAqMMAM68NJcyzIyg895aV8u00kSxVGtAd');
 
-const StripeOptionPayment = () => {
+const OptionPayment = ({ amount, contratId, handlePaymentClick }) => {
     const stripe = useStripe();
     const elements = useElements();
     const [error, setError] = useState(null);
@@ -14,14 +14,14 @@ const StripeOptionPayment = () => {
     const [clientSecret, setClientSecret] = useState('');
 
     useEffect(() => {
-        axios.post('/api/create-payment-intent', { amount: amount * 100 }) // Convert amount to cents
+        axios.post('/api/create-payment-intent', { amount: amount * 1 }) // Convert amount to cents
             .then(response => {
                 setClientSecret(response.data.clientSecret);
             })
             .catch(error => {
                 console.error('Error creating payment intent:', error); // Log error details
             });
-    }, []);
+    }, [amount]);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -45,9 +45,12 @@ const StripeOptionPayment = () => {
             setError(null);
             setProcessing(false);
             setSuccess('Payment succeeded!');
+            
+
         }
     };
 
+    
     return (
         <div style={{ maxWidth: '400px', margin: '0 auto' }}>
             <form id="payment-form" onSubmit={handleSubmit}>
@@ -62,4 +65,4 @@ const StripeOptionPayment = () => {
     );
 };
 
-export default StripeOptionPayment;
+export default OptionPayment;
