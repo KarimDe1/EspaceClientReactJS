@@ -10,7 +10,7 @@ const LoginScreen = () => {
     const history = useHistory();
 
     const [loginInput, setLogin] = useState({
-        tel: '',
+        password: '',
         code_Client: '',
         error_list: [],
 
@@ -24,42 +24,32 @@ const LoginScreen = () => {
 
     const loginSubmit = (e) => {
         e.preventDefault();
-
+    
         const data = {
-            tel: loginInput.tel,
+            password: loginInput.password,
             code_Client: loginInput.code_Client
         }
-
+    
         axios.get('/sanctum/csrf-cookie').then(response => {
             axios.post('api/log', data).then(res => {
                 if (res.data.status === 200) {
-
                     localStorage.setItem('auth_token', res.data.token);
                     localStorage.setItem('auth_client', JSON.stringify(res.data.client));
-
-
                     history.push('/espaceclient/dashboard');
                     window.location.reload();
-
-
-
-
-                } else if (res.data.status === 401) {
+                } else {
                     swal("Oops", res.data.message, "error");
-
                 }
-                else {
-                    setLogin({ ...loginInput, error_list: res.data.validation_errors });
-
+            }).catch(error => {
+                if (error.response.status === 401) {
+                    swal("Oops", "Identifiant ou mot de passe incorrect", "error");
+                } else {
+                    console.error('Error logging in:', error);
                 }
             });
         });
-
-
-
     }
-
-
+    
 
     return (
         <div className='login-screen-box '>
@@ -67,12 +57,14 @@ const LoginScreen = () => {
             <h1>Connectez-vous</h1>
 
             <div>
+                <input type='password' placeholder='Password' required className="form-control" onChange={handleInputLogin} value={loginInput.password} name="password" />
+                <span className="text-danger">{loginInput.error_list.password}</span>
 
                 <input placeholder='Code client' required className="form-control" onChange={handleInputLogin} value={loginInput.code_Client} name="code_Client" />
                 <span className="text-danger">{loginInput.error_list.code_Client}</span>
 
-                <input placeholder='Mot de passe' required className="form-control" onChange={handleInputLogin} value={loginInput.tel} name="tel" />
-                <span className="text-danger">{loginInput.error_list.tel}</span>
+
+                
 
                 <button onClick={loginSubmit} type="submit">Se connecter </button>
 
