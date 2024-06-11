@@ -24,12 +24,12 @@ const LoginScreen = () => {
 
     const loginSubmit = (e) => {
         e.preventDefault();
-    
+
         const data = {
             password: loginInput.password,
             code_Client: loginInput.code_Client
         }
-    
+
         axios.get('/sanctum/csrf-cookie').then(response => {
             axios.post('api/log', data).then(res => {
                 if (res.data.status === 200) {
@@ -43,13 +43,18 @@ const LoginScreen = () => {
             }).catch(error => {
                 if (error.response.status === 401) {
                     swal("Oops", "Identifiant ou mot de passe incorrect", "error");
+                } 
+                else if (error.response.status === 429) {
+                    
+                    swal("Oops", response.data.message, "error");
+
                 } else {
                     console.error('Error logging in:', error);
                 }
             });
         });
     }
-    
+
 
     return (
         <div className='login-screen-box '>
@@ -57,14 +62,12 @@ const LoginScreen = () => {
             <h1>Connectez-vous</h1>
 
             <div>
-                <input type='password' placeholder='Password' required className="form-control" onChange={handleInputLogin} value={loginInput.password} name="password" />
-                <span className="text-danger">{loginInput.error_list.password}</span>
 
                 <input placeholder='Code client' required className="form-control" onChange={handleInputLogin} value={loginInput.code_Client} name="code_Client" />
                 <span className="text-danger">{loginInput.error_list.code_Client}</span>
 
-
-                
+                <input type='password' placeholder='Password' required className="form-control" onChange={handleInputLogin} value={loginInput.password} name="password" />
+                <span className="text-danger">{loginInput.error_list.password}</span>
 
                 <button onClick={loginSubmit} type="submit">Se connecter </button>
 
@@ -73,7 +76,6 @@ const LoginScreen = () => {
                         <Link to="/forgotpassword" className="text-info text-gradient font-weight-bold">Mot de passe oublié ?</Link>
                     </p>
                 </div>
-
 
             </div>
         </div>

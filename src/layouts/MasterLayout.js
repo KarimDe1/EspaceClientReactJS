@@ -31,7 +31,8 @@ const MasterLayout = () => {
                                             )}
                                         />
                                     ))}
-                                    <Redirect from="espaceclient" to="/espaceclient/dashboard"/>
+                             <Redirect from="espaceclient" to="/espaceclient/dashboard"/>
+                             
                                 </Switch>
                             </div>
                         </div>
