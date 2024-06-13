@@ -43,10 +43,10 @@ export default function Navbar() {
                     </a>
                     <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                         aria-labelledby="userDropdown">
-                        <a className="dropdown-item" to="/espaceclient/profile">
+                        <Link className="dropdown-item" to="/espaceclient/profile">
                             <i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                             Mes informations
-                        </a>
+                        </Link>
                         <div className="dropdown-divider"></div>
                         <Link className="dropdown-item" to="/" data-toggle="modal" data-target="#logoutModal"  onClick={logoutSubmit}>
                             <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>

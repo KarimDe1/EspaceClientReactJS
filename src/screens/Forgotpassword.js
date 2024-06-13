@@ -34,7 +34,7 @@ export default function Forgotpassword() {
                     swal("Félicitations", res.data.message, "success");
                     history.push("/");
 
-                } else if (res.data.status === 401) {
+                } else if (res.data.status === 404) {
 
                     swal("Attention", res.data.message, "warning");
                 } else {

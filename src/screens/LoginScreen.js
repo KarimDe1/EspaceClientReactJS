@@ -4,7 +4,6 @@ import './Login.css';
 import axios from "axios";
 import swal from 'sweetalert';
 import { useHistory, Link } from "react-router-dom";
-import { Mail } from '@material-ui/icons';
 
 const LoginScreen = () => {
     const history = useHistory();
@@ -17,7 +16,7 @@ const LoginScreen = () => {
     });
 
     useEffect(() => {
-        loadCaptchaEnginge(5); // Load CAPTCHA with 6 characters
+        loadCaptchaEnginge(5); // Load CAPTCHA with 5 characters
     }, []);
 
     const handleInputLogin = (e) => {
@@ -25,13 +24,18 @@ const LoginScreen = () => {
         setLogin({ ...loginInput, [e.target.name]: e.target.value });
     }
 
+    const resetCaptcha = () => {
+        loadCaptchaEnginge(5);
+        setLogin({ ...loginInput, captcha: '' });
+    };
+
     const loginSubmit = (e) => {
         e.preventDefault();
 
         // Validate CAPTCHA
         if (!validateCaptcha(loginInput.captcha)) {
             swal("Oops", "Invalid CAPTCHA", "error");
-            setLogin({ ...loginInput, captcha: '' });
+            resetCaptcha();
             return;
         }
 
@@ -49,6 +53,7 @@ const LoginScreen = () => {
                     window.location.reload();
                 } else {
                     swal("Oops", res.data.message, "error");
+                    resetCaptcha();
                 }
             }).catch(error => {
                 if (error.response.status === 401) {
@@ -56,6 +61,7 @@ const LoginScreen = () => {
                 } else {
                     console.error('Error logging in:', error);
                 }
+                resetCaptcha();
             });
         });
     }

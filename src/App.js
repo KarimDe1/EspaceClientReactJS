@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Switch, Redirect, useHistory } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import LoginScreen from './screens/LoginScreen';
@@ -23,19 +23,11 @@ const stripePromise = loadStripe('your_stripe_publishable_key');
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [lastLocation, setLastLocation] = useState(null);
-  const history = useHistory();
 
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
     setIsAuthenticated(!!token);
-
-    // Check if there is a last location in state
-    if (lastLocation) {
-      history.push(lastLocation);
-      setLastLocation(null); // Clear the last location after redirecting
-    }
-  }, [history, lastLocation]);
+  }, []);
 
   return (
     <div className="App">
@@ -47,23 +39,31 @@ const App = () => {
           <Route path='/forgotpassword'>
             {isAuthenticated ? <Redirect to="/espaceclient/dashboard" /> : <Forgotpassword />}
           </Route>
-          <Route path='/resetforgottenpassword/:id'>
-            {isAuthenticated ? <Redirect to="/espaceclient/dashboard" /> : <Resetforgottenpassword />}
-          </Route>
+          <Route path='/resetforgottenpassword/:id' >
+              {isAuthenticated ? <Redirect to="/espaceclient/dashboard" /> : <Resetforgottenpassword />}
+            </Route>
           <Elements stripe={stripePromise}>
-            <Route
-              path="/espaceclient"
-              render={(props) => (
-                <MasterLayout
-                  {...props}
-                  setLastLocation={setLastLocation} // Pass setLastLocation function to MasterLayout
-                />
-              )}
-            />
+            <PrivateRoute path="/espaceclient" component={MasterLayout} isAuthenticated={isAuthenticated} />
           </Elements>
+          <Route render={() => <Redirect to="/" />} />
         </Switch>
       </Router>
     </div>
+  );
+};
+
+const PrivateRoute = ({ component: Component, isAuthenticated, ...rest }) => {
+  return (
+    <Route
+      {...rest}
+      render={(props) =>
+        isAuthenticated ? (
+          <Component {...props} />
+        ) : (
+          <Redirect to="/" />
+        )
+      }
+    />
   );
 };
 
