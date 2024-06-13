@@ -12,7 +12,7 @@ import swal from 'sweetalert';
 
 
 
-const stripePromise = loadStripe('pk_test_51PQz2ECDzgLkZIsvgIzTxWozssoDyasZApYEnqsmNzTGfjyoy4jjNAzic30mHz6wrJDNEqrkP7KFUPpEm3gdWQEm00o4XVK3Pv');
+const stripePromise = loadStripe('pk_test_51PM93EP08thL8YjU0rYFxQHB7E0QvfefWS3YftiVXOb76yaefza5qau5RZ4W9dL3pAqMMAM68NJcyzIyg895aV8u00kSxVGtAd');
 
 export default function Factures() {
     const [factures, setFactures] = useState([]);
