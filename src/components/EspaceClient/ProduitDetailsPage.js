@@ -1,12 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+
 import MaterialTable from 'material-table';
 import tableIcons from '../MaterialTableIcons';
-
 export default function ProduitDetails() {
     const location = useLocation();
     const produits = location.state?.produit || [];
-
     return (
         <div>
             <MaterialTable
@@ -17,7 +16,9 @@ export default function ProduitDetails() {
                     },
                     {
                         title: 'Nom Commercial',
-                        field: 'nom_commercial'
+                        render: rowData => (
+                            <span>{`${rowData.nom_commercial} (${rowData.reference})`}</span>
+                        )
                     },
                     {
                         title: 'Référence',

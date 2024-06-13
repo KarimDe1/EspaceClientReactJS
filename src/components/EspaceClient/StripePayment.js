@@ -46,6 +46,8 @@ const StripePayment = ({ amount, factureId, handlePaymentClick }) => {
             setProcessing(false);
             setSuccess('Payment succeeded!');
             handlePaymentSuccess();
+            handlePaymentClick();
+            
         }
     };
 

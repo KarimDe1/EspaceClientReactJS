@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { Elements } from '@stripe/react-stripe-js'; // Import Elements
+import { loadStripe } from '@stripe/stripe-js';
 import axios from "axios";
 import MaterialTable from 'material-table';
 import tableIcons from '../MaterialTableIcons';
 import { Link } from 'react-router-dom';
-import { Elements } from '@stripe/react-stripe-js'; // Import Elements
-import { loadStripe } from '@stripe/stripe-js';
 import StripePayment from './StripePayment';
 import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import swal from 'sweetalert';
 
-const stripePromise = loadStripe('pk_test_51PM93EP08thL8YjU0rYFxQHB7E0QvfefWS3YftiVXOb76yaefza5qau5RZ4W9dL3pAqMMAM68NJcyzIyg895aV8u00kSxVGtAd');
+
+
+const stripePromise = loadStripe('pk_test_51PQz2ECDzgLkZIsvgIzTxWozssoDyasZApYEnqsmNzTGfjyoy4jjNAzic30mHz6wrJDNEqrkP7KFUPpEm3gdWQEm00o4XVK3Pv');
 
 export default function Factures() {
     const [factures, setFactures] = useState([]);
@@ -17,6 +20,7 @@ export default function Factures() {
     const [selectedFactureId, setSelectedFactureId] = useState(null);
     const [showPayment, setShowPayment] = useState(false);
 
+    const [alertShown, setAlertShown] = useState(false);
     useEffect(() => {
         axios.get('api/currentuser')
             .then(response => {
@@ -34,9 +38,34 @@ export default function Factures() {
             });
     }, []);
 
+
+    useEffect(() => {
+        if (!alertShown && factures.length > 0) {
+            const currentDate = new Date(); // Current date object
+            const checkDueDates = () => {
+                let Notpaid = 0;
+                factures.forEach(facture => {
+                    const dueDate = new Date(facture.echeance); 
+                        const timeDiff = dueDate.getTime() - currentDate.getTime();
+                        const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                        console.log(daysDiff,timeDiff,dueDate);
+                        if (daysDiff <= 3 && facture.reste_a_payer!== '0') {
+                            Notpaid ++;
+                            swal("Date limite depassé", `Factures non payées : ${Notpaid} `, "error");
+                        }
+                    
+                });
+            };
+            checkDueDates();
+            setAlertShown(true);
+        }
+    }, [factures, alertShown]);
+
+
     const VoirPDF = (e, pdf) => {
         e.preventDefault();
         window.open(`http://127.0.0.1:8000${pdf}`)
+        
     }
 
     const handlePaymentSuccess = (factureId) => {
@@ -53,7 +82,7 @@ export default function Factures() {
             })
             .catch(error => {
                 console.error('Error updating reste a payer:', error);
-                // Handle error
+                
             });
     };
     
@@ -62,6 +91,10 @@ export default function Factures() {
         setSelectedAmount(amount);
         setSelectedFactureId(factureId);
         setShowPayment(true);
+
+    };
+
+    const handlePaymentClick1 = (amount, factureId) => {
         setFactures(prevFactures => {
             return prevFactures.map(facture => {
                 if (facture._id === factureId) {
@@ -89,7 +122,8 @@ export default function Factures() {
                     },
                     {
                         title: <h6 style={{ fontSize: '17px', color: '#f48404' }}>Reste à payer</h6>,
-                        field: 'reste_a_payer'
+                        field: 'reste_a_payer',
+                        defaultSort:'desc'
                     },
                     {
                         title: <h6 style={{ fontSize: '17px', color: '#f48404' }}>Prise en charge</h6>,
@@ -147,7 +181,7 @@ export default function Factures() {
                 <Modal.Body>
                     {showPayment && (
                         <Elements stripe={stripePromise}>
-                            <StripePayment amount={selectedAmount} factureId={selectedFactureId} handlePaymentClick={handlePaymentClick} />
+                            <StripePayment amount={selectedAmount} factureId={selectedFactureId} handlePaymentClick={handlePaymentClick1} />
                         </Elements>
                     )}
                 </Modal.Body>

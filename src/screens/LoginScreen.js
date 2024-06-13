@@ -1,33 +1,43 @@
 import React, { useState, useEffect } from 'react';
-
+import { loadCaptchaEnginge, LoadCanvasTemplate, validateCaptcha } from 'react-simple-captcha';
 import './Login.css';
 import axios from "axios";
 import swal from 'sweetalert';
-
 import { useHistory, Link } from "react-router-dom";
+import { Mail } from '@material-ui/icons';
 
 const LoginScreen = () => {
     const history = useHistory();
 
     const [loginInput, setLogin] = useState({
         password: '',
-        code_Client: '',
+        mail: '',
         error_list: [],
-
+        captcha: '',
     });
+
+    useEffect(() => {
+        loadCaptchaEnginge(5); // Load CAPTCHA with 6 characters
+    }, []);
 
     const handleInputLogin = (e) => {
         e.persist();
         setLogin({ ...loginInput, [e.target.name]: e.target.value });
     }
 
-
     const loginSubmit = (e) => {
         e.preventDefault();
 
+        // Validate CAPTCHA
+        if (!validateCaptcha(loginInput.captcha)) {
+            swal("Oops", "Invalid CAPTCHA", "error");
+            setLogin({ ...loginInput, captcha: '' });
+            return;
+        }
+
         const data = {
             password: loginInput.password,
-            code_Client: loginInput.code_Client
+            mail: loginInput.mail
         }
 
         axios.get('/sanctum/csrf-cookie').then(response => {
@@ -43,11 +53,6 @@ const LoginScreen = () => {
             }).catch(error => {
                 if (error.response.status === 401) {
                     swal("Oops", "Identifiant ou mot de passe incorrect", "error");
-                } 
-                else if (error.response.status === 429) {
-                    
-                    swal("Oops", response.data.message, "error");
-
                 } else {
                     console.error('Error logging in:', error);
                 }
@@ -55,19 +60,23 @@ const LoginScreen = () => {
         });
     }
 
-
     return (
-        <div className='login-screen-box '>
+        <div className='login-screen-box ' style={{height:500 }}>
             <img src="https://icons.veryicon.com/png/o/miscellaneous/two-color-icon-library/user-286.png" className="avatar" alt="User Avatar" />
             <h1>Connectez-vous</h1>
 
             <div>
-
-                <input placeholder='Code client' required className="form-control" onChange={handleInputLogin} value={loginInput.code_Client} name="code_Client" />
-                <span className="text-danger">{loginInput.error_list.code_Client}</span>
+            
+                <input placeholder='mail' required className="form-control" onChange={handleInputLogin} value={loginInput.mail} name="mail" />
+                <span className="text-danger">{loginInput.error_list.mail}</span>
 
                 <input type='password' placeholder='Password' required className="form-control" onChange={handleInputLogin} value={loginInput.password} name="password" />
                 <span className="text-danger">{loginInput.error_list.password}</span>
+                <div className="captcha-box">
+                    <LoadCanvasTemplate />
+                </div>
+                <input placeholder='Enter CAPTCHA' required className="form-control" onChange={handleInputLogin} value={loginInput.captcha} name="captcha" />
+                <span className="text-danger">{loginInput.error_list.captcha}</span>
 
                 <button onClick={loginSubmit} type="submit">Se connecter </button>
 
@@ -76,7 +85,6 @@ const LoginScreen = () => {
                         <Link to="/forgotpassword" className="text-info text-gradient font-weight-bold">Mot de passe oublié ?</Link>
                     </p>
                 </div>
-
             </div>
         </div>
     );
