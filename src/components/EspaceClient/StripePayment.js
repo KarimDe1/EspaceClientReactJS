@@ -5,6 +5,7 @@ import axios from 'axios';
 
 const stripePromise = loadStripe('pk_test_51PM93EP08thL8YjU0rYFxQHB7E0QvfefWS3YftiVXOb76yaefza5qau5RZ4W9dL3pAqMMAM68NJcyzIyg895aV8u00kSxVGtAd');
 
+
 const StripePayment = ({ amount, factureId, handlePaymentClick }) => {
     const stripe = useStripe();
     const elements = useElements();
@@ -47,16 +48,30 @@ const StripePayment = ({ amount, factureId, handlePaymentClick }) => {
             setSuccess('Payment succeeded!');
             handlePaymentSuccess();
             handlePaymentClick();
-            
         }
     };
+
+    
+
+
+
+
 
     const handlePaymentSuccess = () => {
         axios.put(`/api/factures/${factureId}`, { reste_a_payer: '0' })
             .then(response => {
                 console.log('Facture updated successfully:', response.data);
                 handlePaymentClick('0', factureId); // Update UI
-            })
+                axios.get('api/currentuser')
+                    .then(res => {
+                    const userId = res.data.currentuser._id;
+                    axios.post(`/api/addfauto/${userId}`)
+                
+                })
+                .catch(error => {
+                console.error('Error fetching current user:', error);
+                });
+                })
             .catch(error => {
                 console.error('Error updating facture:', error);
             });
